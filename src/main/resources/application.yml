@@ -1,0 +1,24 @@
+server:
+  jsp-servlet:
+    init-parameters:
+      development: true
+  context-path: /lucene
+
+spring:
+  profiles:
+    active: test
+  http:
+    encoding:
+      charset: UTF-8
+      force: true
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 100MB
+  mvc:
+    view:
+      suffix: .jsp
+      prefix: /
+
+mybatis:
+  mapper-locations: classpath*:com/baizhi/mapper/*.xml
+  type-aliases-package: com.baizhi.entity
