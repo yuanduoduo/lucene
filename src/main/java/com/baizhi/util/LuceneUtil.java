@@ -50,6 +50,10 @@ public class LuceneUtil {
         return indexSearcher;
     }
 
+    public static Analyzer getAnalyzer(){
+        return analyzer;
+    }
+
     public static void commit(IndexWriter indexWriter) {
         if (indexWriter != null) {
             try {
