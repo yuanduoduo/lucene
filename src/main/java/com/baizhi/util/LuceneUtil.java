@@ -22,14 +22,27 @@ public class LuceneUtil {
     static {
         try {
             directory=FSDirectory.open(new File("/Users/yuanduo/Documents/index"));
+            //版本号
             version=Version.LUCENE_44;
+            //分词器
             analyzer=new IKAnalyzer();
+            //索引写入对象相关配置
             writerConfig=new IndexWriterConfig(version,analyzer);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+    /*
+    * @return 返回版本号
+    * */
+    public static Version getVersion(){
+        return version;
+    }
+    /*
+    *  @return 返回用于操作索引的对象
+    *  @throws IOException
+    * */
     public static IndexWriter getIndexWriter(){
         IndexWriter indexWriter= null;
         try {
@@ -39,6 +52,10 @@ public class LuceneUtil {
         }
         return indexWriter;
     }
+    /*
+    *  @return 返回用于读取索引的对象
+    *  @throes IOException
+    * */
     public static IndexSearcher getIndexSearcher(){
         IndexReader reader= null;
         try {
@@ -49,11 +66,15 @@ public class LuceneUtil {
         IndexSearcher indexSearcher=new IndexSearcher(reader);
         return indexSearcher;
     }
-
+    /*
+    * @returnb 返回分词器
+    * */
     public static Analyzer getAnalyzer(){
         return analyzer;
     }
-
+    /*
+    * 提交并且关闭操作对象
+    * */
     public static void commit(IndexWriter indexWriter) {
         if (indexWriter != null) {
             try {
@@ -64,7 +85,9 @@ public class LuceneUtil {
             }
         }
     }
-
+    /*
+    * 回滚并且关闭操作对象
+    * */
     public static void rollback(IndexWriter indexWriter) {
         if (indexWriter != null) {
             try {
