@@ -108,12 +108,14 @@ public class TestQuery {
     }
 
     public static void testSearcherIndex(Query query){
-        int page=1;
-        int rows=2;
+        int page=1;//页数
+        int rows=2;//条数
         /*
         * 高亮
         * */
+        //样式 给关键字设置的颜色
         Formatter formatter = new SimpleHTMLFormatter("<font color=red>","</font>");
+        //关键字
         QueryScorer scorer = new QueryScorer(query);
         /*
         * 参数1：高亮成什么颜色
@@ -121,9 +123,11 @@ public class TestQuery {
         * 参数2：哪些词高亮
         * */
         Highlighter highlighter = new Highlighter(formatter, scorer);
+
         try {
             IndexSearcher indexSearcher = LuceneUtil.getIndexSearcher();
             TopDocs topDocs = indexSearcher.search(query, page*rows);
+            //相关度的排序
             ScoreDoc[] scoreDocs = topDocs.scoreDocs;
             for (int i = (page-1)*rows; i < scoreDocs.length; i++) {
                 ScoreDoc scoreDoc = scoreDocs[i];
@@ -138,6 +142,7 @@ public class TestQuery {
                 System.out.println(author);
                 System.out.println(content);
                 System.out.println(score);
+                //应用高亮度
                 /*String title1 = highlighter.getBestFragment(LuceneUtil.getAnalyzer(), "title", document.get("title"));
                 if(title1==null){
                     System.out.println(title);
