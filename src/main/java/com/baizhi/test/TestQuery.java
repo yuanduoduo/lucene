@@ -1,10 +1,7 @@
 package com.baizhi.test;
 
 import com.baizhi.util.LuceneUtil;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.StringField;
-import org.apache.lucene.document.TextField;
+import org.apache.lucene.document.*;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
@@ -20,6 +17,7 @@ import org.junit.Test;
 import java.io.IOException;
 
 public class TestQuery {
+
     @Test
     public void test1() {
         Query query = new TermQuery(new Term("content", "橘子"));
@@ -51,7 +49,7 @@ public class TestQuery {
     * */
     @Test
     public void test4() {
-        NumericRangeQuery<Integer> query = NumericRangeQuery.newIntRange("id", 3, 7, true, false);
+        NumericRangeQuery<Integer> query = NumericRangeQuery.newIntRange("age", 1, 14, true, false);
         testSearcherIndex(query);
     }
     /*
@@ -67,8 +65,8 @@ public class TestQuery {
     @Test
     public void test6() {
         BooleanQuery booleanClauses = new BooleanQuery();
-        NumericRangeQuery<Integer> query=NumericRangeQuery.newIntRange("id",1,9,true,true);
-        NumericRangeQuery<Integer> query1=NumericRangeQuery.newIntRange("id",2,5,true,true);
+        NumericRangeQuery<Integer> query=NumericRangeQuery.newIntRange("age",1,9,true,true);
+        NumericRangeQuery<Integer> query1=NumericRangeQuery.newIntRange("age",2,5,true,true);
         booleanClauses.add(query, BooleanClause.Occur.SHOULD);
         booleanClauses.add(query1,BooleanClause.Occur.MUST_NOT);
         testSearcherIndex(booleanClauses);
@@ -90,13 +88,16 @@ public class TestQuery {
     @Test
     public void testCreteIndex() {
         IndexWriter indexWriter = LuceneUtil.getIndexWriter();
-        for (int i = 14; i < 15; i++) {
+        for (int i = 15; i < 16; i++) {
             Document document = new Document();
             document.add(new StringField("id", String.valueOf(i), Field.Store.YES));
             document.add(new StringField("title", "背影" + i, Field.Store.YES));
             document.add(new StringField("author", "朱自清" + i, Field.Store.YES));
+            document.add(new IntField("age", i, Field.Store.YES));
+            //document.add(new TextField("content", "你在这里不动，我去买个橘子" + i, Field.Store.YES));
             TextField content=new TextField("content", "你在这里不动，我去买个橘子" + i, Field.Store.YES);
             content.setBoost(10F);
+            document.add(content);
             try {
                 indexWriter.addDocument(document);
             } catch (IOException e) {
@@ -108,8 +109,8 @@ public class TestQuery {
     }
 
     public static void testSearcherIndex(Query query){
-        int page=1;//页数
-        int rows=2;//条数
+        //int page=1;//页数
+        //int rows=5;//条数
         /*
         * 高亮
         * */
@@ -126,10 +127,10 @@ public class TestQuery {
 
         try {
             IndexSearcher indexSearcher = LuceneUtil.getIndexSearcher();
-            TopDocs topDocs = indexSearcher.search(query, page*rows);
+            TopDocs topDocs = indexSearcher.search(query, 100);  //page*rows
             //相关度的排序
             ScoreDoc[] scoreDocs = topDocs.scoreDocs;
-            for (int i = (page-1)*rows; i < scoreDocs.length; i++) {
+            for (int i = 0; i < scoreDocs.length; i++) {       //(page-1)*rows
                 ScoreDoc scoreDoc = scoreDocs[i];
                 int doc = scoreDoc.doc;
                 float score = scoreDocs[i].score;
@@ -169,4 +170,17 @@ public class TestQuery {
             e.printStackTrace();
         }
     }
+
+    @Test                                                      
+    public void test8() {                                      
+        IndexWriter indexWriter = LuceneUtil.getIndexWriter(); 
+        Term term = new Term("id", "15");                      
+        try {                                                  
+            indexWriter.deleteDocuments(term);                 
+            LuceneUtil.commit(indexWriter);                    
+        } catch (IOException e) {                              
+            LuceneUtil.rollback(indexWriter);                  
+            e.printStackTrace();                               
+        }                                                      
+    }                                                          
 }
